@@ -1,0 +1,18 @@
+[
+	{
+		"caption": "Fb Flo: start server",
+		"command": "fb_flo_start"
+	},
+	{
+		"caption": "Fb Flo: stop server",
+		"command": "fb_flo_stop"
+	},
+	{
+		"caption": "Fb Flo: watch this file",
+		"command": "fb_flo_watch"
+	},
+	{
+		"caption": "Fb Flo: unwatch this file",
+		"command": "fb_flo_unwatch"
+	}
+]
