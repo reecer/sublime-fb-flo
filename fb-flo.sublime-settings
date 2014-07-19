@@ -1,0 +1,8 @@
+{
+	// If false, updates will be pushed when
+	// the file is saved, rather than instantly.
+	"livereload": true,
+
+	// Timeout before broadcasting update.
+	"timeout_delay": 0.3
+}

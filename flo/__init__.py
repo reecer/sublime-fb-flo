@@ -38,6 +38,7 @@ class Server:
         self.clients = []
         self.connected = False
         self.port = port
+        self.thread = None
 
         WSHandler.onOpen += self.client_opened
         WSHandler.onClose += self.client_closed
@@ -45,9 +46,11 @@ class Server:
 
     def start(self):
         application = tornado.web.Application([ (r'/(.*)', WSHandler), ])
+        
         self.http_server = tornado.httpserver.HTTPServer(application)
         self.http_server.listen(self.port)
-        threading.Thread(target=tornado.ioloop.IOLoop.instance().start).start()
+        
+        self.thread = threading.Thread(target=tornado.ioloop.IOLoop.instance().start).start()
         self.connected = True
         print('Fb-flo server on port', self.port)
 
@@ -64,6 +67,7 @@ class Server:
         # stop thread
         self.http_server.stop()
         tornado.ioloop.IOLoop.instance().stop()
+        self.thread.join()
         print('Fb-flo server stopped')
 
     def add(self, view):

@@ -1,5 +1,6 @@
 
 import sublime, sublime_plugin, sys, os
+from threading import Timer
 
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 for p in [BASE_PATH, os.path.join(BASE_PATH, 'flo')]:
@@ -8,7 +9,6 @@ for p in [BASE_PATH, os.path.join(BASE_PATH, 'flo')]:
 
 from flo import Server
 ctrl = Server()
-print('Fb-flo loaded', ctrl)
 
 def plugin_unloaded():
 	global ctrl
@@ -16,14 +16,40 @@ def plugin_unloaded():
 
 
 class FbFloListener(sublime_plugin.EventListener):
-	def on_modified(self, view):
-		global ctrl
-		if ctrl.has(view):
+	def __init__(self):
+		super().__init__()
+		settings = sublime.load_settings('fb-flo.sublime-settings')
+		
+		self.delay = settings.get('timeout_delay')
+		self.livereload = settings.get('livereload')
+		self.timeout = None
+		print('Fb flo listening with delay', self.delay, 'and livereload', self.livereload)
+
+
+	def update(self, view):
+		if self.timeout: self.timeout.cancel()
+		def broadcast():
 			ctrl.broadcast({
 				"resourceURL": view.file_name().split('/')[-1],
 				"contents": view.substr(sublime.Region(0, view.size())),
 				"match": "indexOf"
 				})
+			self.timeout = None
+
+		self.timeout = Timer(self.delay, broadcast)
+		self.timeout.start()
+		
+
+	def on_modified(self, view):
+		global ctrl
+		if ctrl.has(view) and self.livereload:
+			self.update(view)
+
+	def on_post_save(self, view):
+		global ctrl
+		if ctrl.has(view) and not self.livereload:
+			self.update(view)
+
 	def on_close(self, view):
 		global ctrl
 		if ctrl.has(view):
