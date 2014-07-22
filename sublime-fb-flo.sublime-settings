@@ -4,5 +4,5 @@
 	"livereload": true,
 
 	// Timeout before broadcasting update.
-	"timeout_delay": 0.3
+	"timeout": 0.3
 }

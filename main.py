@@ -16,14 +16,21 @@ def plugin_unloaded():
 	ctrl.stop()
 
 
+def plugin_loaded():
+	pass
+
+
 class FbFloListener(sublime_plugin.EventListener):
 	def __init__(self):
 		super().__init__()
-		settings = sublime.load_settings('sublime-fb-flo.sublime-settings')
-		self.delay = settings.get('timeout_delay')
-		self.livereload = settings.get('livereload')
 		self.timeout = None
-		print('Fb flo listening with delay', self.delay, 'and livereload', self.livereload)
+		self.settings = None
+
+	def on_load(self, view):
+		self.settings = sublime.load_settings('sublime-fb-flo.sublime-settings')
+
+	def delay(self): return self.settings.get('timeout')
+	def livereload(self): return self.settings.get('livereload')
 
 
 	def update(self, view):
@@ -39,18 +46,20 @@ class FbFloListener(sublime_plugin.EventListener):
 			self.timeout = None
 
 		print('Starting timeout')
-		self.timeout = Timer(self.delay, broadcast)
+		self.timeout = Timer(self.delay(), broadcast)
 		self.timeout.start()
 		
 
 	def on_modified(self, view):
 		global ctrl
-		if ctrl.has(view) and self.livereload:
+		if not self.settings: self.on_load(None)
+		print(self.settings.has('livereload'))
+		if ctrl.has(view) and self.livereload():
 			self.update(view)
 
 	def on_post_save(self, view):
 		global ctrl
-		if ctrl.has(view) and not self.livereload:
+		if ctrl.has(view) and not self.livereload():
 			self.update(view)
 
 	def on_close(self, view):
