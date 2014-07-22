@@ -1,4 +1,5 @@
 
+
 import sublime, sublime_plugin, sys, os
 from threading import Timer
 
@@ -18,8 +19,7 @@ def plugin_unloaded():
 class FbFloListener(sublime_plugin.EventListener):
 	def __init__(self):
 		super().__init__()
-		settings = sublime.load_settings('fb-flo.sublime-settings')
-		
+		settings = sublime.load_settings('sublime-fb-flo.sublime-settings')
 		self.delay = settings.get('timeout_delay')
 		self.livereload = settings.get('livereload')
 		self.timeout = None
@@ -29,6 +29,8 @@ class FbFloListener(sublime_plugin.EventListener):
 	def update(self, view):
 		if self.timeout: self.timeout.cancel()
 		def broadcast():
+			print('Broadcasting update')
+			global ctrl
 			ctrl.broadcast({
 				"resourceURL": view.file_name().split('/')[-1],
 				"contents": view.substr(sublime.Region(0, view.size())),
@@ -36,6 +38,7 @@ class FbFloListener(sublime_plugin.EventListener):
 				})
 			self.timeout = None
 
+		print('Starting timeout')
 		self.timeout = Timer(self.delay, broadcast)
 		self.timeout.start()
 		

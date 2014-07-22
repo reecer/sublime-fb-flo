@@ -15,6 +15,7 @@ class EventHook(object):
         return self
 
     def __isub__(self, handler):
+        print('Removed hanlder', handler, self.__handlers)
         self.__handlers.remove(handler)
         return self
 
@@ -39,9 +40,6 @@ class Server:
         self.connected = False
         self.port = port
         self.thread = None
-
-        WSHandler.onOpen += self.client_opened
-        WSHandler.onClose += self.client_closed
         print('Fb-flo initialized')
 
     def start(self):
@@ -50,24 +48,33 @@ class Server:
         self.http_server = tornado.httpserver.HTTPServer(application)
         self.http_server.listen(self.port)
         
-        self.thread = threading.Thread(target=tornado.ioloop.IOLoop.instance().start).start()
+        self.thread = threading.Thread(target=tornado.ioloop.IOLoop.instance().start)
+        self.thread.start()
+
         self.connected = True
-        print('Fb-flo server on port', self.port)
+        WSHandler.onOpen += self.client_opened
+        WSHandler.onClose += self.client_closed
+        print('Fb-flo server on port', self.port, self.thread)
 
     def stop(self):
         if not self.connected: return
+        # stop thread
+        self.http_server.stop()
+        tornado.ioloop.IOLoop.instance().stop()
+        self.thread.join()
         
+        # Close clients
+        for client in self.clients: 
+            print('closing client', client)
+            client.close()
+
+        # reset vars
         self.views = []
         self.clients = []
         self.connected = False
 
         WSHandler.onOpen -= self.client_opened
         WSHandler.onClose -= self.client_closed
-
-        # stop thread
-        self.http_server.stop()
-        tornado.ioloop.IOLoop.instance().stop()
-        self.thread.join()
         print('Fb-flo server stopped')
 
     def add(self, view):
