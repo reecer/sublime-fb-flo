@@ -53,7 +53,6 @@ class FbFloListener(sublime_plugin.EventListener):
 	def on_modified(self, view):
 		global ctrl
 		if not self.settings: self.on_load(None)
-		print(self.settings.has('livereload'))
 		if ctrl.has(view) and self.livereload():
 			self.update(view)
 
@@ -87,7 +86,7 @@ class FbFloStopCommand(sublime_plugin.TextCommand):
 class FbFloWatchCommand(sublime_plugin.TextCommand):
 	def is_enabled(self):
 		global ctrl
-		return ctrl.connected and not ctrl.has(self.view)
+		return ctrl.connected and len(ctrl.views) and not ctrl.has(self.view)
 	def run(self, edit):
 		global ctrl
 		ctrl.add(self.view)
@@ -95,7 +94,7 @@ class FbFloWatchCommand(sublime_plugin.TextCommand):
 class FbFloUnwatchCommand(sublime_plugin.TextCommand):
 	def is_enabled(self):
 		global ctrl
-		return ctrl.connected and ctrl.has(self.view)
+		return ctrl.has(self.view)
 	def run(self, edit):
 		global ctrl
-		ctrl.rm(view)
+		ctrl.rm(self.view)
