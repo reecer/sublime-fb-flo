@@ -19,9 +19,9 @@ Search [Package Control](https://sublime.wbond.net/) for "Fb-Flo"
 ##Settings
 
 - ###livereload
-    If false, updates will be pushed when files are saved, rather than instantly
+    If false, updates will be pushed when files are saved, rather than instantly.
     - default: true
 
 - ###timeout 
-    Timeout before broadcasting update (ms).
+    Timeout before broadcasting update (seconds).
     - default: 0.3
