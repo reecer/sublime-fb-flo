@@ -3,12 +3,13 @@
 import sublime, sublime_plugin, sys, os
 from threading import Timer
 
+# Sublime path settings....
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
-for p in [BASE_PATH, os.path.join(BASE_PATH, 'flo')]:
+for p in [BASE_PATH, os.path.join(BASE_PATH)]:
 	if p not in sys.path:
 		sys.path.append(p)
 
-from flo import Server
+from fbflo import Server
 ctrl = Server()
 
 def plugin_unloaded():
@@ -86,7 +87,9 @@ class FbFloStopCommand(sublime_plugin.TextCommand):
 class FbFloWatchCommand(sublime_plugin.TextCommand):
 	def is_enabled(self):
 		global ctrl
-		return ctrl.connected and len(ctrl.views) and not ctrl.has(self.view)
+		a = ctrl.connected and len(ctrl.clients) > 0 and not ctrl.has(self.view)
+		print(a)
+		return a
 	def run(self, edit):
 		global ctrl
 		ctrl.add(self.view)

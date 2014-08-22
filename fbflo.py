@@ -1,10 +1,16 @@
-import json, threading
+import json, threading, os, sys
 
+# Sublime path settings....
+BASE_PATH = os.path.abspath(os.path.dirname(__file__))
+for p in [BASE_PATH, os.path.join(BASE_PATH, 'tornado')]:
+    if p not in sys.path:
+        sys.path.append(p)
+        
 import tornado.process
-import tornado.ioloop;
-import tornado.web;
-import tornado.websocket;
-import tornado.httpserver;
+import tornado.ioloop
+import tornado.web
+import tornado.websocket
+import tornado.httpserver
 
 class EventHook(object):
     def __init__(self):
@@ -13,9 +19,8 @@ class EventHook(object):
     def __iadd__(self, handler):
         self.__handlers.append(handler)
         return self
-
+        
     def __isub__(self, handler):
-        print('Removed hanlder', handler, self.__handlers)
         self.__handlers.remove(handler)
         return self
 
@@ -35,6 +40,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                  
 class Server:
     def __init__(self, port=8888):
+        '''Fb-flo server implementation'''
         self.views = []
         self.clients = []
         self.connected = False
@@ -43,6 +49,7 @@ class Server:
         print('Fb-flo initialized')
 
     def start(self):
+        '''Start the server'''
         application = tornado.web.Application([ (r'/(.*)', WSHandler), ])
         
         self.http_server = tornado.httpserver.HTTPServer(application)
@@ -57,6 +64,7 @@ class Server:
         print('Fb-flo server on port', self.port, self.thread)
 
     def stop(self):
+        '''Stop the server'''
         if not self.connected: return
         # stop thread
         self.http_server.stop()
@@ -78,27 +86,33 @@ class Server:
         print('Fb-flo server stopped')
 
     def add(self, view):
+        '''Start watching file view `view`'''
         self.views.append(view.id())
         print('Fb-flo now watching', view.file_name())
 
     def rm(self, view):
+        '''Stop watching file view `view`'''
         if self.has(view):
             self.views.remove(view.id())
             print('Fb-flo stopped watching view.file_name()')
 
     def has(self, view):
+        '''Returns True if this view is being watched'''
         return view.id() in self.views
 
 
     def broadcast(self, msg):
+        '''Broadcast to all clients'''
         for ws in self.clients:
             ws.write_message(json.dumps(msg))
 
     def client_opened(self, ws):
+        '''Client connected callback'''
         self.clients.append(ws)
         print('Client opened')
 
     def client_closed(self, ws):
+        '''Client disconnected callback'''
         if ws in self.clients:
             self.clients.remove(ws)
             print('Client closed')
