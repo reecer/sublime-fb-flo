@@ -3,6 +3,8 @@ sublime-fb-flo
 Sublime plugin for fb-flo.
 Runs a server that communicates with fb-flo's chrome extension. Enables live-editing.
 
+![Alt text](pics/livecode.gif)
+
 
 ##Installation
 Search [Package Control](https://sublime.wbond.net/) for "Fb-Flo"
@@ -22,12 +24,10 @@ Search [Package Control](https://sublime.wbond.net/) for "Fb-Flo"
 
 ##Settings
 
-- ###timeout 
-    Timeout before broadcasting update (seconds).
-    - default: 0.3
-
 - ###livereload
     If false, updates will be pushed when files are saved, rather than instantly.
     - default: true
 
-    ![Alt text](pics/livecode.gif)
+- ###timeout 
+    Timeout before broadcasting update (seconds).
+    - default: 0.3
