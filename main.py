@@ -87,9 +87,7 @@ class FbFloStopCommand(sublime_plugin.TextCommand):
 class FbFloWatchCommand(sublime_plugin.TextCommand):
 	def is_enabled(self):
 		global ctrl
-		a = ctrl.connected and len(ctrl.clients) > 0 and not ctrl.has(self.view)
-		print(a)
-		return a
+		return ctrl.connected and not ctrl.has(self.view)
 	def run(self, edit):
 		global ctrl
 		ctrl.add(self.view)
