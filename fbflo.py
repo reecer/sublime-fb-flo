@@ -94,7 +94,7 @@ class Server:
         '''Stop watching file view `view`'''
         if self.has(view):
             self.views.remove(view.id())
-            print('Fb-flo stopped watching view.file_name()')
+            print('Fb-flo stopped watching', view.file_name())
 
     def has(self, view):
         '''Returns True if this view is being watched'''
